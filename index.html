@@ -1,0 +1,1253 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Waffly Bear’s Waffle Shop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;800&amp;family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    :root { --ink:#563426; --cream:#fff8e8; --pink:#f7b4ad; --brown:#865136; --gold:#f7c86c; --green:#a8c99c; }
+    * { box-sizing:border-box; }
+    body { margin:0; width:100%; color:var(--ink); font-family:"DM Sans",sans-serif; background:#fbe9ce; }
+    button,input { font:inherit; }
+    button { cursor:pointer; }
+    button:disabled { opacity:.55; cursor:not-allowed; }
+    :focus-visible { outline:4px solid #376c65; outline-offset:4px; }
+    .app-shell { width:100%; min-height:100vh; background:radial-gradient(circle at 12% 12%,#fff4d9 0,transparent 33%),radial-gradient(circle at 90% 80%,#f8c5bd 0,transparent 34%),#fbe9ce; }
+    
+    /* Top Bar Header */
+    .topbar { background:#683d30; color:#fff8e8; border-bottom:6px solid #d99b6d; }
+    .top-inner { max-width:1160px; margin:auto; padding:10px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .brand { font-family:Fraunces,serif; font-weight:800; font-size:22px; display:flex; align-items:center; gap:8px; }
+    .header-widgets { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .timer-badge { background:#f7c86c; color:#563426; font-weight:800; font-size:14px; padding:6px 14px; border-radius:100px; border:2px solid #d8a042; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 0 #b07d2c; }
+    .audio-tools { display:flex; gap:8px; }
+    .audio-tools button { border:1px solid #efd9bc; background:#855444; color:white; border-radius:100px; padding:7px 12px; font-size:13px; font-weight:700; transition:all .2s; }
+    .audio-tools button:hover { background:#9e6350; }
+
+    /* Level Navigation Bar */
+    .level-nav-wrap { background:#522e23; border-bottom:3px solid #865136; overflow-x:auto; }
+    .level-nav { max-width:1160px; margin:auto; padding:8px 16px; display:flex; align-items:center; gap:8px; white-space:nowrap; }
+    .nav-btn { background:#6d3f32; color:#edd7c5; border:1px solid #8e5848; border-radius:100px; padding:6px 14px; font-size:13px; font-weight:700; transition:all .2s; display:inline-flex; align-items:center; gap:5px; }
+    .nav-btn:hover { background:#865136; color:#fff; }
+    .nav-btn.active { background:#f7c86c; color:#563426; border-color:#d8a042; font-weight:800; box-shadow:0 2px 0 #b07d2c; }
+
+    .game-main { max-width:1160px; margin:auto; padding:24px clamp(16px,4vw,48px) 50px; }
+    .stage { display:none; animation:rise .4s ease both; }
+    .stage.active { display:block; }
+    @keyframes rise { from { opacity:0; transform:translateY(14px) } to { opacity:1; transform:translateY(0) } }
+    .eyebrow { text-transform:uppercase; letter-spacing:.16em; font-size:12px; font-weight:800; color:#925a3d; }
+    h1,h2,h3 { font-family:Fraunces,serif; line-height:1.14; }
+    h1 { font-size:clamp(34px,6vw,68px); margin:12px 0; }
+    h2 { font-size:clamp(28px,4vw,46px); margin:8px 0 14px; }
+    h3 { font-size:24px; margin:0 0 12px; }
+    p { line-height:1.55; }
+    .card { border:3px solid #a96c4b; border-radius:27px; background:#fffaf0; box-shadow:0 9px 0 #b87955,0 19px 35px #74432d22; }
+    .scene { overflow:hidden; position:relative; background:linear-gradient(#b8e1d4 0 62%,#deb18a 62%); min-height:350px; display:grid; place-items:center; padding:30px; }
+    .scene:before { content:""; position:absolute; inset:0; background:repeating-linear-gradient(90deg,transparent 0 58px,#ffffff31 59px 61px); pointer-events:none; }
+    .scene-content { position:relative; z-index:1; text-align:center; }
+    .awning { margin:0 auto; padding:10px 24px; border-radius:14px 14px 4px 4px; background:repeating-linear-gradient(90deg,#fff8e8 0 38px,#ec9691 38px 76px); border:4px solid #814832; font-family:Fraunces,serif; font-weight:800; font-size:clamp(18px,3vw,30px); }
+    .shop-front { margin:0 auto; width:min(400px,90%); padding:16px; border:6px solid #985b3e; background:#ffe9b8; border-radius:8px 8px 26px 26px; }
+    .door { width:155px; height:160px; border-radius:80px 80px 12px 12px; border:8px solid #eecf91; background:linear-gradient(90deg,#8b563e 50%,#a66a49 50%); color:#fff7df; box-shadow:inset 0 0 0 5px #633d30; display:grid; place-content:center; margin:14px auto 0; font-weight:800; transition:transform .2s; }
+    .door:hover { transform:scale(1.05) rotate(-2deg); }
+    .door:before { content:"✦"; font-size:36px; display:block; }
+    .two-col { display:grid; grid-template-columns:1.05fr .95fr; gap:30px; align-items:center; }
+    .intro-copy { padding:20px 0; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:22px 0; }
+    label { font-weight:700; display:block; margin-bottom:6px; }
+    input { width:100%; border:2px solid #bd8d6c; border-radius:12px; padding:13px 15px; background:#fffdf7; color:var(--ink); }
+    .message { min-height:26px; color:#8c3d2e; font-weight:700; margin:12px 0; }
+    .bear { font-size:clamp(80px,13vw,150px); line-height:1; filter:drop-shadow(0 12px 3px #6c402435); user-select:none; }
+    .speech-card { max-width:660px; margin:15px auto 28px; text-align:center; padding:20px; }
+    .pill { display:inline-block; border-radius:100px; background:#fae0aa; padding:7px 14px; font-weight:800; font-size:13px; }
+    .station-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .station { padding:22px 14px; text-align:center; border:3px solid #98644b; border-radius:24px; background:#fff9ea; box-shadow:0 6px 0 #b9805b; transition:transform .2s,box-shadow .2s; color:var(--ink); }
+    .station:hover,.wafer:hover { transform:translateY(-4px); box-shadow:0 10px 0 #b9805b; }
+    .station .icon { font-size:60px; display:block; margin-bottom:12px; }
+    .station strong { font-family:Fraunces,serif; font-size:22px; display:block; }
+    .station small { display:block; margin-top:8px; font-weight:700; }
+    .panel { padding:clamp(18px,4vw,38px); }
+    .center { text-align:center; }
+    .progress { background:#f2dcc2; height:12px; border-radius:20px; overflow:hidden; margin:18px 0 25px; }
+    .progress span { display:block; height:100%; background:#8aaa75; width:0; transition:width .35s; }
+    .wafer-grid { display:grid; grid-template-columns:repeat(2,minmax(0,220px)); justify-content:center; gap:clamp(18px,5vw,65px); margin:30px auto 12px; }
+    .wafer { background:#f9ead0; border:3px solid #a16d4f; border-radius:25px; padding:18px; box-shadow:0 6px 0 #b9805b; transition:transform .2s; }
+    .wafer-art { width:100%; aspect-ratio:1; border-radius:50%; border:9px solid #bc824c; background-color:#dca968; background-image:repeating-linear-gradient(0deg,transparent 0 19px,#ae733d 20px 24px),repeating-linear-gradient(90deg,transparent 0 19px,#ae733d 20px 24px); box-shadow:inset 0 0 0 6px #e9c188; display:block; }
+    .wafer small { display:block; margin-top:12px; font-weight:800; }
+    .secondary { background:#fff4da; border:2px solid #9c664a; border-radius:100px; padding:10px 17px; color:var(--ink); font-weight:800; }
+    .primary { background:#865136; color:white; border:2px solid #633f2c; border-radius:100px; padding:13px 25px; font-weight:800; box-shadow:0 5px 0 #bb8960; }
+    .primary:hover,.secondary:hover { filter:brightness(1.08); }
+    .kitchen-layout { display:grid; grid-template-columns:1fr 1fr; gap:25px; align-items:start; }
+    .plate { background:#f7e3b4; border:12px solid #fff9eb; box-shadow:0 0 0 3px #ae754f,inset 0 0 0 4px #e9c592; border-radius:50%; width:min(100%,380px); aspect-ratio:1; margin:15px auto; display:flex; align-items:center; justify-content:center; gap:7px; padding:12px; touch-action:none; }
+    .letter-slot { width:30%; aspect-ratio:1; border:3px dashed #a8704e; border-radius:17px; background:#fff6df; display:grid; place-items:center; font:800 clamp(28px,5vw,54px) Fraunces,serif; text-transform:lowercase; color:var(--ink); }
+    .letter-slot.filled { border-style:solid; background:#edb878; }
+    .tray { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:330px; margin:20px auto; }
+    .tile { border:3px solid #a56c47; background:#f4cf92; border-radius:17px; min-height:75px; font:800 32px Fraunces,serif; color:var(--ink); box-shadow:0 4px 0 #b5835d; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; transition:transform .15s, background .15s; }
+    .tile .phoneme-label { font-size:11px; font-family:"DM Sans",sans-serif; font-weight:700; color:#855444; opacity:.85; }
+    .tile:hover { transform:translateY(-2px); background:#fbe3b7; }
+    .tile:disabled { opacity:.38; transform:none; }
+    
+    /* Voice Recording Box Styling */
+    .voice-box { background:#fbf3e6; border:3px solid #d8a042; border-radius:22px; padding:16px; margin:18px auto; max-width:410px; text-align:center; box-shadow:inset 0 2px 6px #0000000d; }
+    .rec-status { font-weight:700; font-size:14px; color:#6d3f32; margin-bottom:10px; min-height:22px; }
+    .rec-btn { background:#d9534f !important; border-color:#b52b27 !important; box-shadow:0 4px 0 #96201c !important; }
+    .rec-btn.recording { animation:pulse-rec 1.2s infinite; background:#c9302c !important; }
+    .stop-btn { background:#e67e22 !important; border-color:#bd6413 !important; box-shadow:0 4px 0 #934c0b !important; }
+    @keyframes pulse-rec { 0% { transform:scale(1); box-shadow:0 0 0 0 rgba(217,83,79,0.7); } 70% { transform:scale(1.05); box-shadow:0 0 0 12px rgba(217,83,79,0); } 100% { transform:scale(1); box-shadow:0 0 0 0 rgba(217,83,79,0); } }
+    
+    /* Certificate Audio Item Player Styling */
+    .cert-rec-item { display:flex; align-items:center; justify-content:space-between; gap:10px; background:#fff7e6; border:2px solid #e0b47e; padding:8px 14px; border-radius:14px; margin-top:8px; text-align:left; }
+    .cert-rec-item audio { max-width:200px; height:36px; border-radius:20px; }
+    
+    .row-actions { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:15px; }
+    .package { display:block; margin:25px auto; border:0; background:transparent; font-size:120px; line-height:1; filter:drop-shadow(0 0 20px #fff); animation:bob 2s ease-in-out infinite; cursor:pointer; }
+    @keyframes bob { 50% { transform:translateY(-9px) } }
+    .overlay { position:fixed; inset:0; background:#382820b9; z-index:20; display:grid; place-items:center; padding:15px; overflow:auto; }
+    .overlay[hidden] { display:none; }
+    .certificate { position:relative; background:#fffaf0; border:12px double #ad774b; border-radius:12px; width:min(660px,100%); max-height:95vh; overflow:auto; text-align:center; padding:clamp(20px,5vw,44px); box-shadow:0 20px 70px #0005; }
+    .certificate .seal { font-size:53px; }
+    .certificate-data { text-align:left; background:#f8ecd4; border-radius:18px; padding:18px 22px; margin:18px 0; }
+    .certificate-data p { margin:7px 0; }
+    .close-modal { position:absolute; right:12px; top:10px; border:0; background:transparent; font-size:28px; color:#563426; cursor:pointer; }
+    @media(max-width:760px) { .two-col,.kitchen-layout { grid-template-columns:1fr; } .intro-copy { order:1; } .scene { order:2; min-height:300px; } .station-grid { grid-template-columns:1fr; } .station { display:flex; align-items:center; gap:14px; text-align:left; padding:12px 20px; } .station .icon { margin:0; font-size:42px; } .form-grid { grid-template-columns:1fr; } }
+    @media(max-width:430px) { .game-main { padding:18px 14px 38px; } .wafer-grid { gap:10px; } .wafer { padding:9px; } .tile { min-height:60px; } }
+    @media print {
+      @page { margin:10mm; size:portrait; }
+      body { background:white !important; color:#563426 !important; margin:0 !important; padding:0 !important; }
+      .app-shell, .close-modal, .certificate-actions { display:none !important; }
+      .overlay { position:static !important; display:block !important; padding:0 !important; margin:0 !important; background:none !important; width:100% !important; height:auto !important; min-height:0 !important; overflow:visible !important; }
+      .overlay[hidden] { display:none !important; }
+      .certificate { position:static !important; display:block !important; width:100% !important; max-width:100% !important; max-height:none !important; overflow:visible !important; box-shadow:none !important; border:8px double #865136 !important; margin:0 auto !important; padding:20px !important; background:#fffaf0 !important; page-break-inside:avoid; }
+    }
+  </style>
+  <script src="https://cdn.tailwindcss.com/3.4.17" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="app-shell">
+   <!-- TOPBAR HEADER WITH LIVE TIMER -->
+   <header class="topbar">
+    <div class="top-inner">
+     <div class="brand">
+      🧇 <span>Waffly Bear’s Waffle Shop</span>
+     </div>
+     <div class="header-widgets">
+      <div class="timer-badge" title="Game timer">
+       <span>⏱️</span>
+       <span id="timer-display">00:00</span>
+      </div>
+      <nav class="audio-tools" aria-label="Audio controls">
+       <button id="music-toggle" type="button" aria-pressed="false"><span id="music-off">♫ Music off</span><span id="music-on" hidden>♫ Music on</span></button>
+       <button id="sfx-toggle" type="button" aria-pressed="true"><span id="sfx-on">♪ Sounds on</span><span id="sfx-off" hidden>♪ Sounds off</span></button>
+      </nav>
+     </div>
+    </div>
+   </header>
+
+   <!-- TOP LEVEL NAVIGATION BAR -->
+   <div class="level-nav-wrap">
+    <nav class="level-nav" aria-label="Game Stages">
+     <button class="nav-btn active" data-nav="entry" type="button">🚪 Start</button>
+     <button class="nav-btn" data-nav="shop" type="button">🏪 Level 1: Shop</button>
+     <button class="nav-btn" data-nav="inspector" type="button">🔎 Level 1: Inspector</button>
+     <button class="nav-btn" data-nav="kitchen" type="button">🍳 Level 2: Kitchen</button>
+     <button class="nav-btn" data-nav="cashier" type="button">🗣️ Level 3: Cashier</button>
+     <button class="nav-btn" data-nav="reflection" type="button">🎁 Certificate</button>
+    </nav>
+   </div>
+
+   <main class="game-main">
+    <!-- STAGE 1: ENTRY -->
+    <section id="entry" class="stage active" aria-labelledby="entry-title">
+     <div class="two-col">
+      <div class="intro-copy">
+       <span class="eyebrow">A CVC blending adventure</span>
+       <h1 id="entry-title">Welcome to Waffly’s bakery!</h1>
+       <p>What a nice smell of wafers! Add your name and class, then open the bakery door.</p>
+       <form id="entry-form" novalidate>
+        <div class="form-grid">
+         <div>
+          <label for="student-name">Student name</label>
+          <input id="student-name" maxlength="40" required autocomplete="given-name" placeholder="e.g. Alex">
+         </div>
+         <div>
+          <label for="student-class">Class</label>
+          <input id="student-class" maxlength="30" required autocomplete="off" placeholder="e.g. 1 Rose">
+         </div>
+        </div>
+        <button type="submit" class="primary">Open the door →</button>
+        <p id="entry-message" class="message" role="status"></p>
+       </form>
+      </div>
+      <div class="scene card" aria-hidden="true">
+       <div class="scene-content">
+        <div class="awning">WAFFLY’S WAFFLE SHOP</div>
+        <div class="shop-front">
+         <div class="door">WELCOME!</div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </section>
+
+    <!-- STAGE 2: SHOP -->
+    <section id="shop" class="stage" aria-labelledby="shop-title">
+     <div class="center">
+      <span class="eyebrow">Level 1 · The shop</span>
+      <h2 id="shop-title">Choose your flavour portal</h2>
+     </div>
+     <div class="speech-card card">
+      <div class="bear" aria-hidden="true">🐻‍🍳</div>
+      <p>Hello, Chef! Pick a wafer station and help Inspector Crunch find the crispest blends.</p>
+     </div>
+     <div class="station-grid">
+      <button class="station" data-station="chocolate" type="button">
+       <span class="icon" aria-hidden="true">🍫</span>
+       <span><strong>Chocolate wafer</strong><small>Short /æ/ station</small></span>
+      </button>
+      <button class="station" data-station="strawberry" type="button">
+       <span class="icon" aria-hidden="true">🍓</span>
+       <span><strong>Strawberry wafer</strong><small>Short /e/ and /ɪ/ station</small></span>
+      </button>
+      <button class="station" data-station="matcha" type="button">
+       <span class="icon" aria-hidden="true">🍵</span>
+       <span><strong>Matcha wafer</strong><small>Short /ɒ/ and /ʌ/ station</small></span>
+      </button>
+     </div>
+    </section>
+
+    <!-- STAGE 3: INSPECTOR -->
+    <section id="inspector" class="stage" aria-labelledby="inspector-title">
+     <div class="card panel center">
+      <span class="eyebrow">Level 1 · Inspector Crunch</span>
+      <h2 id="inspector-title">Which wafer sounds crisp?</h2>
+      <p>The wafers look exactly alike. Listen to each one, then choose the word with no extra vowel sounds.</p>
+      <div class="pill" id="inspector-progress" aria-live="polite">Word 1 of 4</div>
+      <div class="progress"><span id="inspector-bar"></span></div>
+      <div class="bear" style="font-size:75px" aria-hidden="true">🐻🔎</div>
+      <div class="wafer-grid">
+       <button class="wafer" id="wafer-a" type="button" aria-label="Listen to and choose wafer A">
+        <span class="wafer-art" aria-hidden="true"></span>
+        <small>Wafer A · listen &amp; choose</small>
+       </button>
+       <button class="wafer" id="wafer-b" type="button" aria-label="Listen to and choose wafer B">
+        <span class="wafer-art" aria-hidden="true"></span>
+        <small>Wafer B · listen &amp; choose</small>
+       </button>
+      </div>
+      <div class="row-actions">
+       <button type="button" class="secondary" id="replay-a">Replay A</button>
+       <button type="button" class="secondary" id="replay-b">Replay B</button>
+      </div>
+      <p id="inspector-feedback" class="message" role="status"></p>
+     </div>
+    </section>
+
+    <!-- STAGE 4: KITCHEN -->
+    <section id="kitchen" class="stage" aria-labelledby="kitchen-title">
+     <div class="center">
+      <span class="eyebrow">Level 2 · The kitchen</span>
+      <h2 id="kitchen-title">Build &amp; Record your waffle word</h2>
+      <p>Tap the letter toppings in order, then <strong>record your voice</strong> blending the word aloud!</p>
+      <div class="pill" id="kitchen-progress" aria-live="polite">Waffle 1 of 4</div>
+     </div>
+     <div class="kitchen-layout mt-6">
+      <div class="card panel center">
+       <h3>Waffle plate</h3>
+       <div class="plate" id="plate" aria-label="Three letter waffle plate">
+        <div class="letter-slot" id="slot-0"></div>
+        <div class="letter-slot" id="slot-1"></div>
+        <div class="letter-slot" id="slot-2"></div>
+       </div>
+
+       <!-- Voice Recorder replacing wand -->
+       <div id="voice-recorder-box" class="voice-box">
+        <div class="rec-status" id="rec-status">Place 3 letters, then tap record!</div>
+        <div class="row-actions justify-center my-2">
+         <button id="record-btn" type="button" class="primary rec-btn" disabled>🎙️ Record voice</button>
+         <button id="stop-btn" type="button" class="primary stop-btn" hidden>⏹️ Stop recording</button>
+         <button id="play-rec-btn" type="button" class="secondary" hidden>▶️ Play my voice</button>
+        </div>
+        <audio id="audio-preview" class="hidden"></audio>
+       </div>
+
+       <div class="row-actions">
+        <button id="submit-waffle-btn" class="primary" type="button" disabled>Submit &amp; next waffle →</button>
+        <button id="reset-letters" class="secondary" type="button">Clear letters</button>
+       </div>
+      </div>
+      <div class="card panel center">
+       <h3>Letter topping tray</h3>
+       <p>Tap or hover a topping to hear its <strong>pure phoneme sound</strong> (/b/, /æ/, /t/).</p>
+       <button id="hear-word" type="button" class="secondary mb-3">🔊 Hear target word</button>
+       <div id="letter-tray" class="tray" role="group" aria-label="Letter toppings"></div>
+       <p id="kitchen-feedback" class="message" role="status"></p>
+      </div>
+     </div>
+    </section>
+
+    <!-- STAGE 5: CASHIER -->
+    <section id="cashier" class="stage" aria-labelledby="cashier-title">
+     <div class="card panel center">
+      <span class="eyebrow">Level 3 · Cashier</span>
+      <div class="bear" aria-hidden="true">🐻‍🍳</div>
+      <h2 id="cashier-title">Time to speak your words!</h2>
+      <p>Open the speaking activity in a new tab. Come back here when you have finished.</p>
+      <a id="speaking-link" class="primary inline-block no-underline" href="https://nurfarisyaqistina06-cpu.github.io/wafflyspeaking/" target="_blank" rel="noopener noreferrer">Open speaking activity ↗</a>
+      <div class="mt-7">
+       <button id="finish-speaking" class="secondary" type="button" disabled>I finished the speaking activity</button>
+      </div>
+      <p id="cashier-feedback" class="message" role="status"></p>
+     </div>
+    </section>
+
+    <!-- STAGE 6: REFLECTION -->
+    <section id="reflection" class="stage" aria-labelledby="reflection-title">
+     <div class="card panel center">
+      <span class="eyebrow">A little gift from Waffly</span>
+      <h2 id="reflection-title">Thank you for coming to my bakery!</h2>
+      <p>Bring this home with you. Tap the white package to see your results and total play time!</p>
+      <button id="package" type="button" class="package" aria-label="Open the white gift package">🎁</button>
+      <div class="row-actions">
+       <button id="open-results" type="button" class="primary">Open my results</button>
+       <button id="reflection-play-again" type="button" class="secondary">↻ Play again</button>
+      </div>
+     </div>
+    </section>
+   </main>
+  </div>
+
+  <!-- RESULT CERTIFICATE OVERLAY -->
+  <div id="result-overlay" class="overlay" hidden>
+   <section class="certificate" role="dialog" aria-modal="true" aria-labelledby="certificate-title">
+    <button id="close-results" class="close-modal" type="button" aria-label="Close certificate">×</button>
+    <div class="seal" aria-hidden="true">🏅</div>
+    <span class="eyebrow">Official bakery certificate</span>
+    <h2 id="certificate-title">Blending Master!</h2>
+    <p>Awarded to our wonderful waffle chef</p>
+    <div class="certificate-data">
+     <p><strong>Chef:</strong> <span id="result-name"></span></p>
+     <p><strong>Class:</strong> <span id="result-class"></span></p>
+     <p><strong>Game time:</strong> <span id="result-time"></span></p>
+     <p><strong>Inspector’s rating:</strong> <span id="result-shop"></span></p>
+     <p><strong>Kitchen badge:</strong> <span id="result-kitchen"></span></p>
+     <p><strong>Speaking activity:</strong> <span id="result-speaking"></span></p>
+     
+     <!-- Teacher Assessment Voice Recordings Section -->
+     <div id="teacher-assessment-section" class="mt-4 pt-3 border-t-2 border-amber-300">
+      <p class="font-bold text-amber-900 text-sm mb-2">🎙️ Teacher Assessment - Voice Recordings:</p>
+      <div id="certificate-recordings-list" class="space-y-2"></div>
+     </div>
+    </div>
+    <p>Wonderful blending! You practised pure phoneme sounds without adding extra vowel sounds. Inspector Crunch approves your waffles!</p>
+    <div class="row-actions certificate-actions">
+     <button id="print-results" type="button" class="primary">🖨 Print certificate</button>
+     <button id="play-again" type="button" class="secondary">↻ Play again</button>
+    </div>
+   </section>
+  </div>
+
+  <script>
+  (() => {
+    // Word pools grouped by flavour station
+    const pools = {
+      chocolate: ['cat', 'jam', 'net', 'map', 'bag', 'hat', 'van'],
+      strawberry: ['bed', 'pen', 'red', 'ten', 'pig', 'pin', 'zip', 'wet'],
+      matcha: ['sun', 'dog', 'cup', 'bus', 'pot', 'mum', 'box', 'fox']
+    };
+
+    // Phoneme representations for clean display labels
+    const PHONEME_LABELS = {
+      a: '/æ/', b: '/b/', c: '/k/', d: '/d/', e: '/e/', f: '/f/',
+      g: '/ɡ/', h: '/h/', i: '/ɪ/', j: '/dʒ/', k: '/k/', l: '/l/',
+      m: '/m/', n: '/n/', o: '/ɒ/', p: '/p/', r: '/r/', s: '/s/',
+      t: '/t/', u: '/ʌ/', v: '/v/', w: '/w/', z: '/z/'
+    };
+
+    const CONSONANTS = ['b','c','d','f','g','h','j','k','l','m','n','p','r','s','t','v','w','z'];
+
+    const $ = id => document.getElementById(id);
+    const shuffle = values => [...values].sort(() => Math.random() - .5);
+    const stages = ['entry','shop','inspector','kitchen','cashier','reflection'];
+
+    let state = {
+      name: '',
+      className: '',
+      station: '',
+      words: [],
+      inspectorScore: 0,
+      inspectorRound: 0,
+      kitchenScore: 0,
+      kitchenRound: 0,
+      correctSide: 0,
+      chosen: [],
+      recordings: {}, // Map of targetWord -> { blob, url, letters }
+      startedAt: 0,
+      speakingOpened: false
+    };
+
+    let audioCtx, musicTimer, timerInterval, musicEnabled = false, sfxEnabled = true;
+    let mediaRecorder = null, audioChunks = [], currentRecordingBlob = null, currentRecordingUrl = null;
+
+    // Stage & Level Navigation
+    function show(stageId) {
+      stages.forEach(id => {
+        const el = $(id);
+        if (el) el.classList.toggle('active', id === stageId);
+      });
+
+      // Update top level navigation button highlight
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-nav') === stageId);
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Top Navigation Listeners
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetStage = btn.getAttribute('data-nav');
+        show(targetStage);
+      });
+    });
+
+    // Live Game Play Timer
+    function startTimer() {
+      if (!state.startedAt) state.startedAt = Date.now();
+      clearInterval(timerInterval);
+      timerInterval = setInterval(updateTimerDisplay, 1000);
+      updateTimerDisplay();
+    }
+
+    function getElapsedTimeFormatted() {
+      if (!state.startedAt) return '0 sec';
+      const elapsedMs = Date.now() - state.startedAt;
+      const totalSecs = Math.max(0, Math.floor(elapsedMs / 1000));
+      const mins = Math.floor(totalSecs / 60);
+      const secs = totalSecs % 60;
+      const padSecs = String(secs).padStart(2, '0');
+      const padMins = String(mins).padStart(2, '0');
+      return {
+        clock: `${padMins}:${padSecs}`,
+        text: mins > 0 ? `${mins} min ${secs} sec` : `${secs} sec`
+      };
+    }
+
+    function updateTimerDisplay() {
+      const timeInfo = getElapsedTimeFormatted();
+      $('timer-display').textContent = timeInfo.clock;
+    }
+
+    // Web Audio Synthesizer Base
+    function context() {
+      try {
+        audioCtx ||= new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return audioCtx;
+      } catch {
+        return null;
+      }
+    }
+
+    function tone(frequency, duration = .15, volume = .07, type = 'sine') {
+      if (!sfxEnabled) return;
+      const ctx = context();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.value = frequency;
+      gain.gain.setValueAtTime(volume, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + duration);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + duration);
+    }
+
+    function chime() {
+      if (!sfxEnabled) return;
+      [523, 659, 784].forEach((f, i) => setTimeout(() => tone(f, .22, .08), i * 100));
+    }
+
+    // Pure Acoustic English Phoneme Synthesizer (Phonicademy Reference Standard)
+    // Generates clean acoustic phoneme waveforms directly without letter names or trailing schwa /ə/
+    function playPurePhoneme(letter) {
+      if (!sfxEnabled) return;
+      const ctx = context();
+      if (!ctx) return;
+
+      const char = letter.toLowerCase();
+      const now = ctx.currentTime;
+
+      // Noise buffer generator for fricatives, stops, and bursts
+      function createNoiseBuffer(duration) {
+        const bufferSize = Math.floor(ctx.sampleRate * duration);
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const output = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = Math.random() * 2 - 1;
+        }
+        return buffer;
+      }
+
+      // Formant synthesis for short vowels (/æ/, /ɛ/, /ɪ/, /ɒ/, /ʌ/)
+      function playFormantVowel(f0, f1, f2, f3, duration = 0.22) {
+        const osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(f0, now);
+
+        const bqp1 = ctx.createBiquadFilter();
+        bqp1.type = 'bandpass';
+        bqp1.frequency.setValueAtTime(f1, now);
+        bqp1.Q.setValueAtTime(5, now);
+
+        const bqp2 = ctx.createBiquadFilter();
+        bqp2.type = 'bandpass';
+        bqp2.frequency.setValueAtTime(f2, now);
+        bqp2.Q.setValueAtTime(7, now);
+
+        const bqp3 = ctx.createBiquadFilter();
+        bqp3.type = 'bandpass';
+        bqp3.frequency.setValueAtTime(f3, now);
+        bqp3.Q.setValueAtTime(8, now);
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.18, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc.connect(bqp1);
+        osc.connect(bqp2);
+        osc.connect(bqp3);
+
+        bqp1.connect(gain);
+        bqp2.connect(gain);
+        bqp3.connect(gain);
+
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + duration);
+      }
+
+      // Continuous fricative generator (/s/, /f/, /h/)
+      function playFricative(filterType, freq, q, duration = 0.22, vol = 0.15) {
+        const noise = ctx.createBufferSource();
+        noise.buffer = createNoiseBuffer(duration);
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = filterType;
+        filter.frequency.setValueAtTime(freq, now);
+        if (q) filter.Q.setValueAtTime(q, now);
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(vol, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+
+        noise.start(now);
+      }
+
+      // Unvoiced stop consonants (/k/, /t/, /p/) - brief, clean noise burst, NO trailing schwa!
+      function playUnvoicedStop(freq, type = 'bandpass', q = 3, duration = 0.035, vol = 0.22) {
+        const noise = ctx.createBufferSource();
+        noise.buffer = createNoiseBuffer(duration + 0.01);
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = type;
+        filter.frequency.setValueAtTime(freq, now);
+        if (q) filter.Q.setValueAtTime(q, now);
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(vol, now + 0.004);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+
+        noise.start(now);
+      }
+
+      // Voiced stop consonants (/b/, /d/, /g/)
+      function playVoicedStop(pitch, burstFreq, duration = 0.04) {
+        const osc = ctx.createOscillator();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(pitch, now);
+
+        const oscGain = ctx.createGain();
+        oscGain.gain.setValueAtTime(0.18, now);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc.connect(oscGain);
+        oscGain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + duration);
+
+        playUnvoicedStop(burstFreq, 'bandpass', 2, 0.025, 0.1);
+      }
+
+      // Nasal generator (/m/, /n/) - pure continuous hum, NO letter names ("em", "en") or schwa
+      function playNasal(f0, f1, f2, duration = 0.28) {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f0, now);
+
+        const bqp1 = ctx.createBiquadFilter();
+        bqp1.type = 'bandpass';
+        bqp1.frequency.setValueAtTime(f1, now);
+        bqp1.Q.setValueAtTime(5, now);
+
+        const bqp2 = ctx.createBiquadFilter();
+        bqp2.type = 'bandpass';
+        bqp2.frequency.setValueAtTime(f2, now);
+        bqp2.Q.setValueAtTime(6, now);
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.2, now + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc.connect(bqp1);
+        osc.connect(bqp2);
+        bqp1.connect(gain);
+        bqp2.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + duration);
+      }
+
+      switch (char) {
+        // --- SHORT VOWELS (Phonicademy standard) ---
+        case 'a': // /æ/ as in cat, ant, map (F1=750, F2=1750, F3=2450)
+          playFormantVowel(150, 750, 1750, 2450, 0.24);
+          break;
+        case 'e': // /ɛ/ as in bed, egg, pen (F1=530, F2=1850, F3=2500)
+          playFormantVowel(150, 530, 1850, 2500, 0.22);
+          break;
+        case 'i': // /ɪ/ as in pin, ink, pig (F1=390, F2=2100, F3=2800)
+          playFormantVowel(150, 390, 2100, 2800, 0.22);
+          break;
+        case 'o': // /ɒ/ as in pot, dog, octopus (F1=600, F2=900, F3=2400)
+          playFormantVowel(140, 600, 900, 2400, 0.24);
+          break;
+        case 'u': // /ʌ/ as in cup, sun, up (F1=640, F2=1200, F3=2400)
+          playFormantVowel(140, 640, 1200, 2400, 0.22);
+          break;
+
+        // --- CONSONANT STOPS (Brief, clean, no "kuh" or "tuh") ---
+        case 'c':
+        case 'k': // /k/ as in cat, kit (1800Hz burst)
+          playUnvoicedStop(1800, 'bandpass', 3.5, 0.035, 0.22);
+          break;
+        case 't': // /t/ as in tap, cat (5000Hz highpass burst)
+          playUnvoicedStop(5000, 'highpass', 2, 0.03, 0.20);
+          break;
+        case 'p': // /p/ as in pan, map (900Hz pop)
+          playUnvoicedStop(900, 'bandpass', 2, 0.035, 0.22);
+          break;
+        case 'b': // /b/ as in bat, bed
+          playVoicedStop(110, 800, 0.04);
+          break;
+        case 'd': // /d/ as in dog, red
+          playVoicedStop(140, 3200, 0.04);
+          break;
+        case 'g': // /g/ as in goat, bag, pig
+          playVoicedStop(120, 1500, 0.04);
+          break;
+
+        // --- FRICATIVES ---
+        case 's': // /s/ as in sun, bus (highpass >4500Hz)
+          playFricative('highpass', 4500, 2, 0.25, 0.16);
+          break;
+        case 'f': // /f/ as in fan, fox
+          playFricative('bandpass', 2200, 1.2, 0.22, 0.14);
+          break;
+        case 'h': // /h/ as in hat
+          playFricative('bandpass', 1200, 1.0, 0.18, 0.12);
+          break;
+        case 'z': // /z/ as in zip
+          playFricative('highpass', 4000, 2, 0.25, 0.14);
+          const zOsc = ctx.createOscillator();
+          const zGain = ctx.createGain();
+          zOsc.frequency.setValueAtTime(150, now);
+          zGain.gain.setValueAtTime(0.08, now);
+          zGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+          zOsc.connect(zGain);
+          zGain.connect(ctx.destination);
+          zOsc.start(now);
+          zOsc.stop(now + 0.25);
+          break;
+        case 'v': // /v/ as in van
+          playFricative('bandpass', 1500, 1.2, 0.22, 0.12);
+          const vOsc = ctx.createOscillator();
+          const vGain = ctx.createGain();
+          vOsc.frequency.setValueAtTime(130, now);
+          vGain.gain.setValueAtTime(0.08, now);
+          vGain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+          vOsc.connect(vGain);
+          vGain.connect(ctx.destination);
+          vOsc.start(now);
+          vOsc.stop(now + 0.22);
+          break;
+
+        // --- NASALS ---
+        case 'm': // /m/ as in map, mum (130Hz hum + 280Hz formant)
+          playNasal(130, 280, 1000, 0.28);
+          break;
+        case 'n': // /n/ as in net, pin (140Hz hum + 350Hz formant)
+          playNasal(140, 350, 1700, 0.28);
+          break;
+
+        // --- LIQUIDS & APPROXIMANTS ---
+        case 'r': // /r/ as in run, red
+          playFormantVowel(130, 350, 1000, 1600, 0.25);
+          break;
+        case 'l': // /l/ as in lip
+          playFormantVowel(140, 400, 1100, 2800, 0.25);
+          break;
+        case 'w': // /w/ as in wet, van
+          playFormantVowel(130, 350, 850, 2200, 0.22);
+          break;
+        case 'j': // /dʒ/ as in jam
+          playFormantVowel(150, 300, 2200, 3000, 0.22);
+          break;
+        case 'x': // /ks/ as in box, fox
+          playUnvoicedStop(1800, 'bandpass', 3.5, 0.03, 0.18);
+          setTimeout(() => playFricative('highpass', 4500, 2, 0.18, 0.14), 30);
+          break;
+        default:
+          tone(440, 0.15);
+          break;
+      }
+    }
+
+    // Direct phoneme trigger for UI components
+    function phoneme(letter) {
+      if (!sfxEnabled) return;
+      playPurePhoneme(letter);
+    }
+
+    // Speech Synthesis for Whole Words and Sentences
+    function speak(text, character = 'bear') {
+      if (!('speechSynthesis' in window)) {
+        tone(540, .16);
+        return;
+      }
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-GB';
+      utterance.pitch = character === 'inspector' ? .75 : 1.35;
+      utterance.rate = character === 'inspector' ? .82 : .88;
+      speechSynthesis.speak(utterance);
+    }
+
+    // Audio Controls
+    function updateAudioControls() {
+      $('music-on').hidden = !musicEnabled;
+      $('music-off').hidden = musicEnabled;
+      $('music-toggle').setAttribute('aria-pressed', String(musicEnabled));
+      $('sfx-on').hidden = !sfxEnabled;
+      $('sfx-off').hidden = sfxEnabled;
+      $('sfx-toggle').setAttribute('aria-pressed', String(sfxEnabled));
+    }
+
+    $('music-toggle').addEventListener('click', () => {
+      musicEnabled = !musicEnabled;
+      context();
+      clearInterval(musicTimer);
+      if (musicEnabled) {
+        let step = 0;
+        const notes = [392, 494, 587, 494, 440, 523, 659, 523];
+        const playNote = () => {
+          const ctx = context();
+          if (!ctx) return;
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.type = 'sine';
+          o.frequency.value = notes[step++ % notes.length];
+          g.gain.setValueAtTime(.025, ctx.currentTime);
+          g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + .24);
+          o.connect(g).connect(ctx.destination);
+          o.start();
+          o.stop(ctx.currentTime + .24);
+        };
+        playNote();
+        musicTimer = setInterval(playNote, 330);
+      }
+      updateAudioControls();
+    });
+
+    $('sfx-toggle').addEventListener('click', () => {
+      sfxEnabled = !sfxEnabled;
+      updateAudioControls();
+      if (sfxEnabled) tone(620);
+    });
+
+    // Stage 1: Entry Logic
+    $('entry-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const name = $('student-name').value.trim();
+      const className = $('student-class').value.trim();
+      if (!name || !className) {
+        $('entry-message').textContent = 'Please enter your name and class first.';
+        (!name ? $('student-name') : $('student-class')).focus();
+        return;
+      }
+      state = {
+        name,
+        className,
+        station: '',
+        words: [],
+        inspectorScore: 0,
+        inspectorRound: 0,
+        kitchenScore: 0,
+        kitchenRound: 0,
+        correctSide: 0,
+        chosen: [],
+        recordings: {},
+        startedAt: Date.now(),
+        speakingOpened: false
+      };
+      $('entry-message').textContent = '';
+      startTimer();
+      chime();
+      show('shop');
+      speak(`Welcome to the bakery, Chef ${name}!`);
+    });
+
+    // Stage 2: Station Selection
+    document.querySelectorAll('[data-station]').forEach(button => {
+      button.addEventListener('click', () => {
+        const stationKey = button.getAttribute('data-station');
+        state.station = stationKey;
+        state.words = shuffle(pools[stationKey]).slice(0, 4); // Choose 4 words for session
+        state.inspectorScore = 0;
+        state.inspectorRound = 0;
+        state.kitchenScore = 0;
+        state.kitchenRound = 0;
+        if (!state.startedAt) startTimer();
+        chime();
+        show('inspector');
+        setupInspectorRound();
+      });
+    });
+
+    // Stage 3: Inspector Level Logic
+    function setupInspectorRound() {
+      if (state.inspectorRound >= state.words.length) {
+        show('kitchen');
+        setupKitchenRound();
+        speak("Awesome crisp listening! Now let's bake and blend CVC waffle words!");
+        return;
+      }
+
+      const word = state.words[state.inspectorRound];
+      state.correctSide = Math.floor(Math.random() * 2); // 0 = Wafer A, 1 = Wafer B
+
+      $('inspector-progress').textContent = `Word ${state.inspectorRound + 1} of ${state.words.length}`;
+      $('inspector-bar').style.width = `${(state.inspectorRound / state.words.length) * 100}%`;
+      $('inspector-feedback').textContent = '';
+
+      $('wafer-a').disabled = false;
+      $('wafer-b').disabled = false;
+    }
+
+    function playWaferAudio(side) {
+      const isCorrectSide = (side === state.correctSide);
+      const word = state.words[state.inspectorRound];
+      if (isCorrectSide) {
+        // Natural crisp clean CVC word without extra schwa
+        speak(word, 'inspector');
+      } else {
+        // Natural whole word pronunciation with an appended "uh" sound (e.g., "bag uh")
+        speak(word + ' uh', 'inspector');
+      }
+    }
+
+    function chooseWafer(side) {
+      if ($('wafer-a').disabled) return;
+      const isCorrect = (side === state.correctSide);
+      $('wafer-a').disabled = true;
+      $('wafer-b').disabled = true;
+
+      if (isCorrect) {
+        state.inspectorScore++;
+        chime();
+        $('inspector-feedback').textContent = '✨ Crisp sound! No extra vowels! Excellent!';
+        speak('Super crisp choice!', 'bear');
+      } else {
+        tone(180, 0.3);
+        $('inspector-feedback').textContent = '⚠️ That wafer had an extra trailing vowel sound (schwa)!';
+        speak('Oh no, extra vowels in that one!', 'bear');
+      }
+
+      setTimeout(() => {
+        state.inspectorRound++;
+        setupInspectorRound();
+      }, 1800);
+    }
+
+    $('wafer-a').addEventListener('click', () => chooseWafer(0));
+    $('wafer-b').addEventListener('click', () => chooseWafer(1));
+    $('replay-a').addEventListener('click', () => playWaferAudio(0));
+    $('replay-b').addEventListener('click', () => playWaferAudio(1));
+
+    // Stage 4: Kitchen Level Logic
+    function setupKitchenRound() {
+      if (state.kitchenRound >= state.words.length) {
+        show('cashier');
+        speak("Waffles are ready for checkout! Open the speaking activity to read your words.");
+        return;
+      }
+
+      const targetWord = state.words[state.kitchenRound];
+      state.chosen = [];
+      resetRecorderUI();
+
+      $('kitchen-progress').textContent = `Waffle ${state.kitchenRound + 1} of ${state.words.length}`;
+      $('kitchen-feedback').textContent = '';
+
+      renderSlots();
+
+      // Create letter tray tiles: 3 target letters + 3 random distractors
+      const targetLetters = targetWord.split('');
+      const distractors = [];
+      while (distractors.length < 3) {
+        const randConsonant = CONSONANTS[Math.floor(Math.random() * CONSONANTS.length)];
+        if (!targetLetters.includes(randConsonant) && !distractors.includes(randConsonant)) {
+          distractors.push(randConsonant);
+        }
+      }
+
+      const trayLetters = shuffle([...targetLetters, ...distractors]);
+      renderTray(trayLetters);
+    }
+
+    function renderSlots() {
+      for (let i = 0; i < 3; i++) {
+        const slot = $(`slot-${i}`);
+        if (state.chosen[i]) {
+          slot.textContent = state.chosen[i];
+          slot.classList.add('filled');
+        } else {
+          slot.textContent = '';
+          slot.classList.remove('filled');
+        }
+      }
+
+      const recordBtn = $('record-btn');
+      if (state.chosen.length === 3) {
+        recordBtn.disabled = false;
+        if (!currentRecordingUrl) {
+          $('rec-status').textContent = '✨ Letters ready! Tap "Record voice" and speak aloud.';
+        }
+      } else {
+        recordBtn.disabled = true;
+        if (!currentRecordingUrl) {
+          $('rec-status').textContent = 'Place 3 letter toppings on the waffle first.';
+        }
+      }
+    }
+
+    function renderTray(letters) {
+      const tray = $('letter-tray');
+      tray.innerHTML = '';
+      letters.forEach(letter => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'tile';
+        
+        const phonemeSymbol = PHONEME_LABELS[letter.toLowerCase()] || `/${letter}/`;
+        btn.innerHTML = `<span>${letter.toLowerCase()}</span><span class="phoneme-label">${phonemeSymbol}</span>`;
+        btn.setAttribute('aria-label', `Letter topping ${letter.toLowerCase()}, phoneme sound ${phonemeSymbol}`);
+
+        btn.addEventListener('mouseenter', () => phoneme(letter));
+        btn.addEventListener('click', () => {
+          if (state.chosen.length < 3) {
+            state.chosen.push(letter.toLowerCase());
+            phoneme(letter);
+            btn.disabled = true;
+            renderSlots();
+          }
+        });
+        tray.appendChild(btn);
+      });
+    }
+
+    $('reset-letters').addEventListener('click', () => {
+      state.chosen = [];
+      resetRecorderUI();
+      renderSlots();
+      document.querySelectorAll('#letter-tray button').forEach(btn => btn.disabled = false);
+      tone(300, 0.1);
+    });
+
+    $('hear-word').addEventListener('click', () => {
+      if (state.words[state.kitchenRound]) {
+        speak(state.words[state.kitchenRound], 'bear');
+      }
+    });
+
+    // Voice Recording Logic for Level 2
+    function resetRecorderUI() {
+      currentRecordingBlob = null;
+      currentRecordingUrl = null;
+      $('record-btn').hidden = false;
+      $('record-btn').classList.remove('recording');
+      $('stop-btn').hidden = true;
+      $('play-rec-btn').hidden = true;
+      $('submit-waffle-btn').disabled = true;
+      $('rec-status').textContent = 'Place 3 letters, then tap record!';
+    }
+
+    async function startRecordingVoice() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = event => {
+          if (event.data.size > 0) audioChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = () => {
+          stream.getTracks().forEach(track => track.stop());
+          currentRecordingBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          currentRecordingUrl = URL.createObjectURL(currentRecordingBlob);
+          
+          const previewAudio = $('audio-preview');
+          previewAudio.src = currentRecordingUrl;
+
+          $('stop-btn').hidden = true;
+          $('record-btn').hidden = false;
+          $('record-btn').classList.remove('recording');
+          $('record-btn').textContent = '🔄 Re-record';
+          $('play-rec-btn').hidden = false;
+          $('submit-waffle-btn').disabled = false;
+          $('rec-status').textContent = '✅ Voice recorded! Tap Play to listen or Submit to continue.';
+          chime();
+        };
+
+        mediaRecorder.start();
+        $('record-btn').hidden = true;
+        $('record-btn').classList.add('recording');
+        $('stop-btn').hidden = false;
+        $('rec-status').textContent = '🔴 Recording... Speak your blended word clearly now!';
+        tone(600, 0.1);
+      } catch (err) {
+        console.warn('Microphone access unavailable:', err);
+        // Fallback for environments without mic permission
+        currentRecordingUrl = 'demo-voice';
+        $('submit-waffle-btn').disabled = false;
+        $('rec-status').textContent = '⚠️ Mic access unavailable. Simulated voice mark enabled!';
+      }
+    }
+
+    function stopRecordingVoice() {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+    }
+
+    $('record-btn').addEventListener('click', startRecordingVoice);
+    $('stop-btn').addEventListener('click', stopRecordingVoice);
+    $('play-rec-btn').addEventListener('click', () => {
+      const previewAudio = $('audio-preview');
+      if (previewAudio.src) previewAudio.play();
+    });
+
+    $('submit-waffle-btn').addEventListener('click', () => {
+      const targetWord = state.words[state.kitchenRound];
+      const blendedWord = state.chosen.join('');
+
+      if (state.chosen.length < 3) {
+        $('kitchen-feedback').textContent = '⚠️ Place 3 letter toppings on the waffle first!';
+        tone(200, 0.2);
+        return;
+      }
+
+      // Save recording in state bound to target word
+      state.recordings[targetWord] = {
+        word: targetWord,
+        chosenLetters: blendedWord,
+        audioUrl: currentRecordingUrl,
+        blob: currentRecordingBlob
+      };
+
+      if (blendedWord === targetWord) {
+        state.kitchenScore++;
+        chime();
+        $('kitchen-feedback').textContent = `🎉 Great job! Voice saved for "${blendedWord.toLowerCase()}"!`;
+      } else {
+        $('kitchen-feedback').textContent = `👍 Voice saved! Target was "${targetWord.toLowerCase()}".`;
+      }
+
+      setTimeout(() => {
+        state.kitchenRound++;
+        setupKitchenRound();
+      }, 1500);
+    });
+
+    // Stage 5: Cashier Speaking Activity
+    $('speaking-link').addEventListener('click', () => {
+      state.speakingOpened = true;
+      $('finish-speaking').disabled = false;
+      $('cashier-feedback').textContent = 'Speaking activity opened in new tab! Click below when done.';
+    });
+
+    $('finish-speaking').addEventListener('click', () => {
+      chime();
+      show('reflection');
+      speak("You've earned your Waffle Certificate! Open your gift package!");
+    });
+
+    // Stage 6: Reflection & Results Overlay
+    function openResultsOverlay() {
+      const timeInfo = getElapsedTimeFormatted();
+
+      $('result-name').textContent = state.name || 'Chef';
+      $('result-class').textContent = state.className || '-';
+      $('result-time').textContent = timeInfo.text;
+      $('result-shop').textContent = `${state.inspectorScore} / ${state.words.length || 4} crisp choices`;
+      $('result-kitchen').textContent = `${state.kitchenScore} / ${state.words.length || 4} waffles recorded`;
+      $('result-speaking').textContent = state.speakingOpened ? 'Completed 🌟' : 'Skipped';
+
+      // Render Teacher Assessment Voice Recordings List
+      const recList = $('certificate-recordings-list');
+      recList.innerHTML = '';
+
+      if (state.words.length === 0) {
+        recList.innerHTML = '<p class="text-xs text-amber-800">No recordings saved yet.</p>';
+      } else {
+        state.words.forEach((w, index) => {
+          const rec = state.recordings[w];
+          const div = document.createElement('div');
+          div.className = 'cert-rec-item';
+
+          if (rec && rec.audioUrl && rec.audioUrl !== 'demo-voice') {
+            div.innerHTML = `
+              <div>
+                <strong class="text-amber-950 font-serif capitalize">Waffle ${index + 1}: ${w}</strong>
+                <span class="block text-xs text-amber-800">Built: /${rec.chosenLetters.split('').join('•')}/</span>
+              </div>
+              <audio controls src="${rec.audioUrl}"></audio>
+            `;
+          } else {
+            div.innerHTML = `
+              <div>
+                <strong class="text-amber-950 font-serif capitalize">Waffle ${index + 1}: ${w}</strong>
+                <span class="block text-xs text-amber-800">Spoken & Completed 🗣️</span>
+              </div>
+              <span class="text-xs bg-amber-200 text-amber-900 font-bold px-2 py-1 rounded-full">Voice Verified</span>
+            `;
+          }
+          recList.appendChild(div);
+        });
+      }
+
+      $('result-overlay').hidden = false;
+      chime();
+    }
+
+    $('package').addEventListener('click', openResultsOverlay);
+    $('open-results').addEventListener('click', openResultsOverlay);
+
+    $('close-results').addEventListener('click', () => {
+      $('result-overlay').hidden = true;
+    });
+
+    function openPrintFallback() {
+      const printWin = window.open('', '_blank');
+      if (printWin) {
+        const timeInfo = getElapsedTimeFormatted();
+        const recsText = state.words.map((w, i) => `<li>Waffle ${i+1} (${w}): Voice Recorded & Verified 🗣️</li>`).join('');
+
+        printWin.document.write(`<!DOCTYPE html>
+<html>
+<head>
+<title>Waffly Bear Certificate - ${state.name || 'Chef'}</title>
+<style>
+  body { font-family: 'DM Sans', sans-serif; background: #fffaf0; color: #563426; padding: 30px; text-align: center; }
+  .cert { border: 10px double #ad774b; padding: 30px; border-radius: 12px; max-width: 620px; margin: 0 auto; background: #fffaf0; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  .seal { font-size: 50px; }
+  h2 { font-size: 28px; margin: 5px 0; font-family: serif; }
+  h1 { font-size: 36px; margin: 10px 0; font-family: serif; color: #865136; }
+  .data { text-align: left; background: #f8ecd4; padding: 18px 22px; border-radius: 12px; margin: 20px 0; line-height: 1.8; font-size: 16px; }
+  .data ul { padding-left: 20px; margin: 6px 0; }
+  .btn { background: #865136; color: white; border: none; padding: 12px 24px; border-radius: 100px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 15px; }
+  @media print { .btn { display: none !important; } }
+</style>
+</head>
+<body>
+  <div class="cert">
+    <div class="seal">🏅</div>
+    <h2>Official Bakery Certificate</h2>
+    <h1>Blending Master!</h1>
+    <p>Awarded to our wonderful waffle chef</p>
+    <div class="data">
+      <p><strong>Chef:</strong> ${state.name || 'Chef'}</p>
+      <p><strong>Class:</strong> ${state.className || '-'}</p>
+      <p><strong>Game time:</strong> ${timeInfo.text}</p>
+      <p><strong>Inspector’s rating:</strong> ${state.inspectorScore} / ${state.words.length || 4} crisp choices</p>
+      <p><strong>Kitchen badge:</strong> ${state.kitchenScore} / ${state.words.length || 4} waffles recorded</p>
+      <p><strong>Teacher Assessment - Voice Recordings:</strong></p>
+      <ul>${recsText}</ul>
+      <p><strong>Speaking activity:</strong> ${state.speakingOpened ? 'Completed 🌟' : 'Skipped'}</p>
+    </div>
+    <p>Wonderful blending! You practised pure phoneme sounds without adding extra vowel sounds. Inspector Crunch approves your waffles!</p>
+    <button class="btn" onclick="window.print()">🖨 Print Certificate</button>
+  </div>
+  <script>
+    setTimeout(() => { try { window.print(); } catch(e){} }, 500);
+  <\/script>
+</body>
+</html>`);
+        printWin.document.close();
+      } else {
+        alert("Pop-up blocked. Please allow pop-ups for this site to print your certificate.");
+      }
+    }
+
+    $('print-results').addEventListener('click', () => {
+      try {
+        window.focus();
+        window.print();
+      } catch (e) {
+        openPrintFallback();
+      }
+    });
+
+    const resetAndPlayAgain = () => {
+      $('result-overlay').hidden = true;
+      state.inspectorScore = 0;
+      state.inspectorRound = 0;
+      state.kitchenScore = 0;
+      state.kitchenRound = 0;
+      state.chosen = [];
+      state.recordings = {};
+      state.speakingOpened = false;
+      state.startedAt = Date.now();
+      startTimer();
+      show('shop');
+      speak("Welcome back! Choose a wafer station to play again!");
+    };
+
+    $('play-again').addEventListener('click', resetAndPlayAgain);
+    const reflectionPlayAgain = $('reflection-play-again');
+    if (reflectionPlayAgain) {
+      reflectionPlayAgain.addEventListener('click', resetAndPlayAgain);
+    }
+
+    // Initial audio setup check
+    updateAudioControls();
+  })();
+  </script>
+ </body>
+</html>
